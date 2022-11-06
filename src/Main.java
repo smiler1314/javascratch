@@ -3,7 +3,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws CustomException {
         IntStream.of(1, 1, 1, 2, 2, 3, 4, 5, 5, 6, 7, 9)
                 .boxed()
                 .collect(Collectors.groupingBy(i -> i, Collectors.toList()))
@@ -39,5 +39,23 @@ public class Main {
 
         System.out.println("-------------------");
 
+        FunctionThrows<Integer, Integer> f = x -> {
+            if (x == 3) throw new CustomException("No!!");
+            return x + 1;
+        };
+        System.out.println(f.apply(1));
+        System.out.println(f.apply(3));
+
+    }
+
+    static class CustomException extends Exception {
+        public CustomException(String msg) {
+            super(msg);
+        }
+    }
+
+    @FunctionalInterface
+    interface FunctionThrows<A, B> {
+        B apply(A a) throws CustomException;
     }
 }
