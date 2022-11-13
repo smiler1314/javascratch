@@ -24,12 +24,26 @@ public class Immutable {
                 .addThing("3")
                 .addThing("3")
                 .addThings(Arrays.asList("5", "7", "9"))
+                .removeThing("9")
                 .getStreamOfThings()
 //                .peek(System.out::print)
                 .mapToInt(thing -> safeParseInt(thing).orElse(0))
                 .flatMap(i -> IntStream.of(i, i + 1))
                 .map(i -> 2 * i)
+                .sorted()
                 .forEach(System.out::println);
+
+        System.out.println("-----------");
+
+        final Container<Integer> bigBoy = new Container<>(
+                IntStream.iterate(0, x -> x + 1)
+                        .boxed()
+                        .limit(1000000L)
+                        .collect(Collectors.toList())
+        );
+
+        bigBoy.removeThing(1);
+//        bigBoy.getStreamOfThings().forEach(System.out::println);
     }
 
     public static Optional<Integer> safeParseInt(Object in) {
@@ -59,7 +73,14 @@ public class Immutable {
             return new Container<>(Stream.concat(
                     things.stream(),
                     Stream.of(thing)
-            ).collect(Collectors.toUnmodifiableSet())
+            ).collect(Collectors.toSet())
+            );
+        }
+
+        public Container<T> removeThing(T toRemove) {
+            return new Container<>(things.stream()
+                    .filter(t -> !t.equals(toRemove))
+                    .collect(Collectors.toSet())
             );
         }
 
@@ -67,7 +88,7 @@ public class Immutable {
             return new Container<>(Stream.concat(
                     things.stream(),
                     otherThings.stream()
-            ).collect(Collectors.toUnmodifiableSet())
+            ).collect(Collectors.toSet())
             );
         }
 

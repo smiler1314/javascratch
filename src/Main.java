@@ -64,7 +64,7 @@ public class Main {
         System.out.println(try3);
 
         final SupplierThrows<Integer> couldFailThunk = () -> {
-            final int n = new Random().nextInt(1, 7);
+            final int n = new Random().nextInt(7);
             if (n > 3) throw new CustomException(n + " is a problem!");
             else return n;
         };
