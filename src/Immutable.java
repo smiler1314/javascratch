@@ -1,3 +1,4 @@
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -46,7 +47,7 @@ public class Immutable {
 //        bigBoy.getStreamOfThings().forEach(System.out::println);
 
         System.out.println("Try to mutate List used to construct a Container...");
-        final List<Integer> toMutate = new ArrayList<>(Arrays.asList(1,2,3));
+        final List<Integer> toMutate = new ArrayList<>(Arrays.asList(1, 2, 3));
         final Container<Integer> cantMutate = new Container<>(toMutate);
         System.out.println(cantMutate);
         toMutate.add(4);
@@ -63,8 +64,7 @@ public class Immutable {
         System.out.println(dict2.lookupValue(1));
         final Dictionary<Integer, String> dict3 = dict2
                 .addItem(2, "test2")
-                .addItem(4, "test4")
-                ;
+                .addItem(4, "test4");
         dict3.getAllEntriesStream()
                 .map(e -> e.getKey() + " -> " + e.getValue())
                 .forEach(System.out::println);
@@ -81,6 +81,26 @@ public class Immutable {
         mutaMap.put(3, "mut3");
         System.out.println(dict4);
 
+        System.out.println("-----------");
+
+        final Container<PersonDO> people = new Container<>(Arrays.asList(
+                new PersonDO("Dan", "High", LocalDate.of(1995, 1, 23), "SW1 0AO"),
+                new PersonDO("Angie", "Long", LocalDate.of(1990, 9, 12), "SW1 0A1"),
+                new PersonDO("Dan", "High", LocalDate.of(1995, 1, 23), "SW1 0AO"),
+                new PersonDO("Craig", "Smith", LocalDate.of(2000, 11, 5), "SW1 0A5")
+        ));
+        people.getStreamOfThings()
+                .forEach(System.out::println);
+        people.getStreamOfThings()
+                .map(person -> person.getFirstName().toUpperCase() + " " + person.getSirName().toUpperCase())
+                .forEach(System.out::println);
+        new Dictionary<PersonDO, String>(people.getStreamOfThings()
+                .collect(Collectors.toMap(
+                        person -> person,
+                        person -> person.getFirstName().toUpperCase() + " " + person.getSirName().toUpperCase()
+                )))
+                .getAllEntriesStream()
+                .forEach(System.out::println);
     }
 
     public static Optional<Integer> safeParseInt(Object in) {
@@ -88,6 +108,62 @@ public class Immutable {
             return Optional.of(Integer.parseInt(in.toString()));
         } catch (NumberFormatException ignored) {
             return Optional.empty();
+        }
+    }
+
+    public static class PersonDO {
+        private final String firstName;
+        private final String sirName;
+        private final LocalDate dob;
+        private final String postCode;
+
+        public PersonDO(String firstName, String sirName, LocalDate dob, String postCode) {
+            this.firstName = firstName;
+            this.sirName = sirName;
+            this.dob = dob;
+            this.postCode = postCode;
+        }
+
+        public String getFirstName() {
+            return firstName;
+        }
+
+        public String getSirName() {
+            return sirName;
+        }
+
+        public LocalDate getDob() {
+            return dob;
+        }
+
+        public String getPostCode() {
+            return postCode;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PersonDO personDO = (PersonDO) o;
+            return firstName.equals(personDO.firstName) &&
+                    sirName.equals(personDO.sirName) &&
+                    dob.equals(personDO.dob) &&
+                    postCode.equals(personDO.postCode);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(firstName, sirName, dob, postCode);
+        }
+
+        @Override
+        public String toString() {
+            return "Person[" +
+                    firstName +
+                    ", " + sirName +
+                    ", " + dob +
+                    ", " + postCode +
+                    ']';
         }
     }
 
