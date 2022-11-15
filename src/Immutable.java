@@ -167,6 +167,7 @@ public class Immutable {
         }
     }
 
+    // TODO could make this generic by Collection type?
     public static class Container<T> {
         private final Set<T> things;
 
@@ -211,7 +212,7 @@ public class Immutable {
         }
     }
 
-    static class Dictionary<K, V> {
+    public static class Dictionary<K, V> {
         private final Map<K, V> dict;
 
         Dictionary(Map<K, V> dict) {
@@ -227,6 +228,8 @@ public class Immutable {
             updated.put(key, value);
             return new Dictionary<>(updated);
         }
+        
+        // TODO addItems?
 
         public Dictionary<K, V> removeItem(K key) {
             Map<K, V> updated = new HashMap<>(dict);
