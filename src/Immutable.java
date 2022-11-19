@@ -92,15 +92,19 @@ public class Immutable {
         people.getStreamOfThings()
                 .forEach(System.out::println);
         people.getStreamOfThings()
-                .map(person -> person.getFirstName().toUpperCase() + " " + person.getSirName().toUpperCase())
+                .map(person -> person.getFirstName().orElse("error").toUpperCase() + " " + person.getSirName().orElse("error").toUpperCase())
                 .forEach(System.out::println);
         new Dictionary<PersonDO, String>(people.getStreamOfThings()
                 .collect(Collectors.toMap(
                         person -> person,
-                        person -> person.getFirstName().toUpperCase() + " " + person.getSirName().toUpperCase()
+                        person -> person.getFirstName().orElse("error").toUpperCase() + " " + person.getSirName().orElse("error").toUpperCase()
                 )))
                 .getAllEntriesStream()
                 .forEach(System.out::println);
+
+        final PersonDO nullPerson = new PersonDO(null, null, null, null);
+        System.out.println("+++++++\n" + nullPerson);
+        System.out.println(nullPerson.equals(people.getStreamOfThings().findFirst().get()));
     }
 
     public static Optional<Integer> safeParseInt(Object in) {
@@ -112,31 +116,35 @@ public class Immutable {
     }
 
     public static class PersonDO {
-        private final String firstName;
-        private final String sirName;
-        private final LocalDate dob;
-        private final String postCode;
+        private final Optional<String> firstName;
+        private final Optional<String> sirName;
+        private final Optional<LocalDate> dob;
+        private final Optional<String> postCode;
 
         public PersonDO(String firstName, String sirName, LocalDate dob, String postCode) {
-            this.firstName = firstName;
-            this.sirName = sirName;
-            this.dob = dob;
-            this.postCode = postCode;
+//            this.firstName = Objects.requireNonNull(firstName);
+//            this.sirName = Objects.requireNonNull(sirName);
+//            this.dob = Objects.requireNonNull(dob);
+//            this.postCode = Objects.requireNonNull(postCode);
+            this.firstName = Optional.ofNullable(firstName);
+            this.sirName = Optional.ofNullable(sirName);
+            this.dob = Optional.ofNullable(dob);
+            this.postCode = Optional.ofNullable(postCode);
         }
 
-        public String getFirstName() {
+        public Optional<String> getFirstName() {
             return firstName;
         }
 
-        public String getSirName() {
+        public Optional<String> getSirName() {
             return sirName;
         }
 
-        public LocalDate getDob() {
+        public Optional<LocalDate> getDob() {
             return dob;
         }
 
-        public String getPostCode() {
+        public Optional<String> getPostCode() {
             return postCode;
         }
 
@@ -145,10 +153,10 @@ public class Immutable {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             PersonDO personDO = (PersonDO) o;
-            return firstName.equals(personDO.firstName) &&
-                    sirName.equals(personDO.sirName) &&
-                    dob.equals(personDO.dob) &&
-                    postCode.equals(personDO.postCode);
+            return Objects.equals(firstName, personDO.firstName) &&
+                    Objects.equals(sirName, personDO.sirName) &&
+                    Objects.equals(dob, personDO.dob) &&
+                    Objects.equals(postCode, personDO.postCode);
         }
 
         @Override
@@ -159,10 +167,10 @@ public class Immutable {
         @Override
         public String toString() {
             return "Person[" +
-                    firstName +
-                    ", " + sirName +
-                    ", " + dob +
-                    ", " + postCode +
+                    firstName.orElse("nil") +
+                    ", " + sirName.orElse("nil") +
+                    ", " + dob.map(LocalDate::toString).orElse("nil") +
+                    ", " + postCode.orElse("nil") +
                     ']';
         }
     }
@@ -228,7 +236,7 @@ public class Immutable {
             updated.put(key, value);
             return new Dictionary<>(updated);
         }
-        
+
         // TODO addItems?
 
         public Dictionary<K, V> removeItem(K key) {
